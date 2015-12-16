@@ -1,4 +1,4 @@
-package developer;
+package com.miao.developer;
 
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;

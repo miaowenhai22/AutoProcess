@@ -1,4 +1,4 @@
-package other;
+package com.miao.reference;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;

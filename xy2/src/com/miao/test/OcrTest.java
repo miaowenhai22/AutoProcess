@@ -1,4 +1,4 @@
-package test;
+package com.miao.test;
 
 import java.io.File;
 

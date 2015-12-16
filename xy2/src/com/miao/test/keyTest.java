@@ -1,7 +1,7 @@
 /**
  * 
  */
-package test;
+package com.miao.test;
 
 import java.awt.AWTException;
 import java.awt.MouseInfo;
@@ -16,8 +16,8 @@ import java.io.IOException;
 
 import org.apache.log4j.Logger;
 
-import developer.Action;
-import developer.Log;
+import com.miao.developer.Action;
+import com.miao.developer.Log;
 
 /**
 * @Description: 

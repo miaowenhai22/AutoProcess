@@ -1,7 +1,7 @@
 /**
  * 
  */
-package developer;
+package com.miao.developer;
 
 import java.awt.image.BufferedImage;
 

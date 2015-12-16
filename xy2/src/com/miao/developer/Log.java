@@ -1,12 +1,12 @@
 /**
  * 
  */
-package developer;
+package com.miao.developer;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
-import test.Log4jTest;
+import com.miao.test.Log4jTest;
 
 /**
 * @Description: 日志管理工具

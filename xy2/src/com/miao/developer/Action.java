@@ -25,15 +25,25 @@ public class Action {
 	 * @throws AWTException 
 	 */
 	public static void mouseTo(int x, int y) throws AWTException {
-		// 获取当前位置
-		Point mousepoint = MouseInfo.getPointerInfo().getLocation();
-		// 判断2点之间距离
-		int xLong = Math.abs(x - mousepoint.x);
-		int yLong = Math.abs(y - mousepoint.y);
-		// TODO 添加随机生成鼠标轨迹算法
+//		// 获取起点坐标
+//		Point mousepoint = MouseInfo.getPointerInfo().getLocation();
+//		int startX = mousepoint.x;
+//		int startY = mousepoint.y;
+//		// 获取坐标差
+//		int longX = Math.abs(x - startX);
+//		int longY = Math.abs(y - startY);
+//		// 获取中点坐标
+//		int centerX = x > startX ? startX + longX / 2 : x + longX;
+//		int centerY = y > startY ? startY + longY / 2 : y + longY;
+//		// 计算半径
+//		double r = Math.sqrt(Math.pow(longX, 2) + Math.pow(longY, 2));
+//		double sin = Math.sin(60*Math.PI/180);
+//		double cos = Math.cos(60*Math.PI/180);
+//		System.out.println(r*sin+","+r*cos);
+		
+		//TODO 添加轨迹算法
 		Robot robot = new Robot();
 		robot.mouseMove(x, y);// 移动鼠标到指定位置
 	}
-	
-	
+
 }

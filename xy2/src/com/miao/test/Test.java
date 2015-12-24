@@ -3,6 +3,11 @@
  */
 package com.miao.test;
 
+import java.awt.AWTException;
+import java.util.Timer;
+
+import com.miao.developer.Action;
+
 /**
 * @Description: 
 * @author Miao
@@ -10,5 +15,7 @@ package com.miao.test;
 *
 */
 public class Test {
-
+	public static void main(String[] args) throws AWTException {
+		Action.mouseTo(1030, 650);
+	}
 }

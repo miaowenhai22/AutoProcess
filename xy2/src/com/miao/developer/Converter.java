@@ -12,6 +12,7 @@ import org.opencv.core.Mat;
 
 /**
  * 转换器
+ * 
  * @author Administrator
  *
  */
@@ -23,6 +24,7 @@ public class Converter {
 
 	/**
 	 * BufferedImage转Mat
+	 * 
 	 * @param im
 	 * @return
 	 */
@@ -35,7 +37,8 @@ public class Converter {
 		BufferedImage cacheImage = null;
 		if (img.getType() != BufferedImage.TYPE_3BYTE_BGR) {
 			// Create a buffered image
-			cacheImage = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
+			cacheImage = new BufferedImage(img.getWidth(), img.getHeight(),
+					BufferedImage.TYPE_3BYTE_BGR);
 			// Draw the image onto the new buffer
 			Graphics2D g = cacheImage.createGraphics();
 			try {
@@ -45,7 +48,8 @@ public class Converter {
 				g.dispose();
 			}
 		}
-		byte[] pixels = ((DataBufferByte) cacheImage.getRaster().getDataBuffer()).getData();
+		byte[] pixels = ((DataBufferByte) cacheImage.getRaster()
+				.getDataBuffer()).getData();
 		// Create a Matrix the same size of image
 		Mat mat = new Mat(img.getHeight(), img.getWidth(), CvType.CV_8UC3);
 		// Fill Matrix with image values
@@ -55,12 +59,14 @@ public class Converter {
 
 	/**
 	 * 将Mat转为BufferedImage
-	* @param mat
-	* @return
-	*/
+	 * 
+	 * @param mat
+	 * @return
+	 */
 	public static BufferedImage matToBufferedImage(Mat mat) {
 		if (mat.height() > 0 && mat.width() > 0) {
-			BufferedImage cacheImage = new BufferedImage(mat.width(), mat.height(), BufferedImage.TYPE_3BYTE_BGR);
+			BufferedImage cacheImage = new BufferedImage(mat.width(),
+					mat.height(), BufferedImage.TYPE_3BYTE_BGR);
 			WritableRaster raster = cacheImage.getRaster();
 			DataBufferByte dataBuffer = (DataBufferByte) raster.getDataBuffer();
 			byte[] data = dataBuffer.getData();

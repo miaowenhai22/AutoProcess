@@ -78,6 +78,7 @@ public class ImgSpot {
 		Mat result = new Mat(new Size(iwidth, iheight), CvType.CV_32F);
 		// 模板匹配图片
 		Imgproc.matchTemplate(image, src, result, 0);
+		//TODO 未找到的时候的处理结果
 		// 返回取得匹配位置
 		return Core.minMaxLoc(result).minLoc;
 	}

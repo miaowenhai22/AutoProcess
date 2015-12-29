@@ -10,8 +10,9 @@ public class OcrTest {
 	public static void main(String[] args) {
 		File imageFile = new File("D:/1.tif");
 		ITesseract instance = new Tesseract();
-//		instance.setLanguage("chi_sim");
-		instance.setLanguage("xy2");
+		instance.setLanguage("chi_sim");
+//		instance.setLanguage("xy2");
+		instance.setTessVariable("tessedit_char_whitelist", "£¬0123456789");
 		
 	
 

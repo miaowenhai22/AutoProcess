@@ -28,8 +28,8 @@ public class FindPic {
 		Imgproc.matchTemplate(pic, src, result, 0);
 		// 取得匹配位置
 		MinMaxLocResult minMaxLoc = Core.minMaxLoc(result);
-		//矩形框选结果
-		//minMaxLoc.minLoc返回的是point对象既为匹配度最高的结果位置
+		// 矩形框选结果
+		// minMaxLoc.minLoc返回的是point对象既为匹配度最高的结果位置
 		Imgproc.rectangle(pic, minMaxLoc.minLoc, new Point(minMaxLoc.minLoc.x
 				+ src.width(), minMaxLoc.minLoc.y + src.height()), new Scalar(
 				0, 255, 0));

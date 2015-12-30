@@ -17,7 +17,7 @@ import java.io.IOException;
 import org.apache.log4j.Logger;
 
 import com.miao.developer.Action;
-import com.miao.developer.Log;
+import com.miao.xy2.utils.Log;
 
 /**
 * @Description: 

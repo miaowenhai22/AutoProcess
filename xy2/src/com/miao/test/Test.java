@@ -5,7 +5,11 @@ package com.miao.test;
 
 import java.awt.AWTException;
 
-import com.miao.xy2.Coordinate;
+import net.sourceforge.tess4j.TesseractException;
+
+import com.miao.developer.Action;
+import com.miao.xy2.map.Maps;
+import com.miao.xy2.map.bean.Location;
 
 /**
  * @Description:
@@ -15,8 +19,7 @@ import com.miao.xy2.Coordinate;
  */
 public class Test {
 
-	public static void main(String[] args) throws AWTException, InterruptedException {
-	Coordinate c = new Coordinate();
-	c.run();
+	public static void main(String[] args) throws AWTException,
+			InterruptedException, TesseractException {
 	}
 }

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.miao.developer.ocr;
+package com.miao.xy2.utils;
 
 import java.awt.image.BufferedImage;
 

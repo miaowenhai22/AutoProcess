@@ -3,7 +3,7 @@ package com.miao.test;
 import java.awt.AWTException;
 import java.io.File;
 
-import com.miao.developer.Screen;
+import com.miao.xy2.utils.screen.Screen;
 
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;

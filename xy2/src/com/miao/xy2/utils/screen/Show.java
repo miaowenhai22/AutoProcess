@@ -1,4 +1,4 @@
-package com.miao.developer;
+package com.miao.xy2.utils.screen;
 
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;

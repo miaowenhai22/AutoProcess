@@ -1,4 +1,4 @@
-package com.miao.developer;
+package com.miao.xy2.utils;
 
 import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
@@ -11,7 +11,7 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 
 /**
- * 转换器
+ * 格式转换器
  * 
  * @author Administrator
  *

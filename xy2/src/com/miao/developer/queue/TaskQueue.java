@@ -14,7 +14,7 @@ import java.util.List;
 *
 */
 public class TaskQueue {
-	private List<Task> queue = new LinkedList<>();
+	public List<Task> queue = new LinkedList<>();
 
 	/**
 	 * 添加到消息队列
@@ -34,6 +34,7 @@ public class TaskQueue {
 		if (task != null) {
 			task.setState(Task.State.FINISHED);
 			queue.remove(task);
+			System.out.println(System.currentTimeMillis());
 		}
 	}
 

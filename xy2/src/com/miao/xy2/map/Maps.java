@@ -23,13 +23,12 @@ import com.miao.xy2.utils.screen.Screen;
  *
  */
 public class Maps {
+	private final static Logger logger = Logger.getLogger(Maps.class.getName());
 	/** 窗口起始坐标点x */
 	private static int winX;
 	/** 窗口起始坐标点y */
 	private static int winY;
 
-	private final static Logger logger = Logger.getLogger(Maps.class
-			.getName());
 
 	/**
 	 * 获取当前坐标位置
@@ -38,8 +37,7 @@ public class Maps {
 	 * @throws TesseractException
 	 * @throws AWTException
 	 */
-	public static Location getLocation() throws TesseractException,
-			AWTException {
+	public static Location getLocation() throws TesseractException, AWTException {
 		// 初次启动时，获取游戏窗口位置
 		if (winX == 0 || winY == 0) {
 			getWindowPosition();
@@ -69,8 +67,7 @@ public class Maps {
 		// 获取屏幕大小
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		// 截屏获取游戏窗口位置，以窗口左上角图片为参考位置获取
-		Mat screenImg = Converter.bufferedImageToMat(Screen.screenshot(0, 0,
-				screenSize.width, screenSize.height));
+		Mat screenImg = Converter.bufferedImageToMat(Screen.screenshot(0, 0, screenSize.width, screenSize.height));
 		Point window = ImgSpot.getLocationForTemplate(screenImg, Dw.minIcon);
 		winX = (int) (window.x);
 		winY = (int) (window.y + 23);

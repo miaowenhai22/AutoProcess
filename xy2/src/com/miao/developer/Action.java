@@ -7,6 +7,11 @@ import java.awt.AWTException;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Robot;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
+import java.awt.event.KeyEvent;
 
 import org.apache.log4j.Logger;
 
@@ -44,8 +49,84 @@ public class Action {
 		// System.out.println(r*sin+","+r*cos);
 
 		// TODO 添加轨迹算法
-//		Robot robot = new Robot();
-//		robot.mouseMove(x, y);// 移动鼠标到指定位置
+		// Robot robot = new Robot();
+		// robot.mouseMove(x, y);// 移动鼠标到指定位置
+	}
+
+	// shift+ 按键
+
+	public static void keyPressWithShift(Robot r, int key) {
+
+		r.keyPress(KeyEvent.VK_SHIFT);
+
+		r.keyPress(key);
+
+		r.keyRelease(key);
+
+		r.keyRelease(KeyEvent.VK_SHIFT);
+
+		r.delay(100);
+
+	}
+
+	// ctrl+ 按键
+
+	public static void keyPressWithCtrl(Robot r, int key) {
+
+		r.keyPress(KeyEvent.VK_CONTROL);
+
+		r.keyPress(key);
+
+		r.keyRelease(key);
+
+		r.keyRelease(KeyEvent.VK_CONTROL);
+
+		r.delay(100);
+
+	}
+
+	// alt+ 按键
+
+	public static void keyPressWithAlt(Robot r, int key) {
+
+		r.keyPress(KeyEvent.VK_ALT);
+
+		r.keyPress(key);
+
+		r.keyRelease(key);
+
+		r.keyRelease(KeyEvent.VK_ALT);
+
+		r.delay(100);
+
+	}
+
+	// 打印出字符串
+
+	public static void keyPressString(Robot r, String str) {
+
+		Clipboard clip = Toolkit.getDefaultToolkit().getSystemClipboard();// 获取剪切板
+
+		Transferable tText = new StringSelection(str);
+
+		clip.setContents(tText, null); // 设置剪切板内容
+
+		keyPressWithCtrl(r, KeyEvent.VK_V);// 粘贴
+
+		r.delay(100);
+
+	}
+
+	// 单个 按键
+
+	public static void keyPress(Robot r, int key) {
+
+		r.keyPress(key);
+
+		r.keyRelease(key);
+
+		r.delay(100);
+
 	}
 
 }

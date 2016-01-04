@@ -21,7 +21,7 @@ public class MouseClickTest {
 
 			while (true) {
 				Action.leftClick(r);
-				Thread.sleep(1000);
+				Thread.sleep(100);
 			}
 		} catch (AWTException e) {
 			e.printStackTrace();

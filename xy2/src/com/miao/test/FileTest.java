@@ -3,9 +3,13 @@ package com.miao.test;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class FileTest {
+	private Map<String, File> map;
 	// 缓存文件头信息-文件头信息
 	public static final HashMap<String, String> mFileTypes = new HashMap<String, String>();
 	static {
@@ -95,10 +99,10 @@ public class FileTest {
 		// 未知类型，直接返回头信息
 		return fileHeader;
 	}
-	
-	public static String getFileExtension(File file){
+
+	public static String getFileExtension(File file) {
 		String fileName = file.getName();
-		return fileName.substring(fileName.lastIndexOf(".")+1);
+		return fileName.substring(fileName.lastIndexOf(".") + 1);
 	}
 
 	/**
@@ -128,7 +132,9 @@ public class FileTest {
 
 	/**
 	 * 文件按类型归档
-	 * @param dir 要归档的文件夹
+	 * 
+	 * @param dir
+	 *            要归档的文件夹
 	 * @throws Exception
 	 */
 	final static void showAllFiles(File dir) throws Exception {
@@ -145,8 +151,7 @@ public class FileTest {
 				if (!file.exists()) {
 					file.mkdir();
 				}
-				File newFile = new File(file.getAbsolutePath() + "/"
-						+ fs[i].getName());
+				File newFile = new File(file.getAbsolutePath() + "/" + fs[i].getName());
 				fs[i].renameTo(newFile);
 				// fs[i].delete();
 			}
@@ -173,29 +178,198 @@ public class FileTest {
 					if (!file.exists()) {
 						file.mkdir();
 					}
-					newFile = new File(file.getAbsolutePath() 
-							+"/"+ fs[i].getName());
-					 fs[i].renameTo(newFile);
+					newFile = new File(file.getAbsolutePath() + "/" + fs[i].getName());
+					fs[i].renameTo(newFile);
 					// fs[i].delete();
 				}
 			}
 		}
 	}
 
-	public static void main(String[] args) throws Exception {
-//		 System.out.println(getFileType(new File("d:/1.mp3")));
-		// 1.遍历目录下所有文件
-		showAllFiles(new File("D:/work"));
-		// File file = new File("d:/a.jpg");
-		// File f = new File("d:/abc");
-		// if(!f.exists()){
-		// f.mkdirs();
-		// }
-		// File fileNew = new File(f.getAbsolutePath()+"/"+file.getName());
-		// System.out.println(f.getAbsolutePath()+file.getName());
-		//
-		// file.renameTo(fileNew);
-		// //2.新建目录，将相同类型的文件，归档到1个目录下
+	/**
+	 * 归档解压后的bmp文件
+	 * 
+	 * @param dir
+	 */
+	public static void removeBmpFile(File dir) {
+		String path, id;
+		File[] fs = dir.listFiles();
+		// 删除空文件
+		if (fs.length <= 0) {
+			dir.delete();
+			return;
+		}
 
+		for (int i = 0; i < fs.length; i++) {
+			System.out.println(Thread.currentThread().getName() + ":" + i + i + "/" + fs.length);
+			// 如果当前路径是目录，进入目录继续查找
+			if (fs[i].isDirectory()) {
+				// 启动线程处理
+				File file = fs[i];
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						removeBmpFile(file);
+					}
+				}, fs[i].getName()).start();
+			} else {
+				// 当前文件是bmp文件时
+				if (fs[i].getAbsolutePath().endsWith(".bmp")) {
+					path = dir.getAbsolutePath();
+					// 如果当前文件夹是was解包后的文件夹
+					if (path.endsWith("_was") && fs[i].getAbsolutePath().endsWith("0000.bmp")) {
+						id = path.substring(path.lastIndexOf("\\") + 1, path.lastIndexOf("_"));
+						fs[i].renameTo(new File(path.substring(0, path.lastIndexOf("\\")) + "\\" + id + ".bmp"));
+					} else {
+						fs[i].delete();
+					}
+				}
+			}
+		}
+		// 删除文件目录
+		if (dir.getAbsolutePath().endsWith("_was")) {
+			dir.delete();
+		}
+	}
+
+	/**
+	 * 根据当前路径下的所有was文件名称，创建键值对
+	 * 
+	 * @param dir
+	 *            文件夹
+	 * @param fileType
+	 *            文件类型 bmp
+	 * @return Map<id,文件名.fileType>
+	 */
+	public static Map<String, String> getIdMap(File dir, String fileType) {
+		File[] listFiles = dir.listFiles();
+		Map<String, String> wasMap = new HashMap<String, String>();
+		String path = "";
+		String wasFileName = "";
+		String substring = "";
+		String id = "";
+		String bmpName = "";
+		for (int i = 0; i < listFiles.length; i++) {
+			// 获取所有was文件id,并生产对应的bmp文件名称
+			path = listFiles[i].getAbsolutePath();
+			if (path.endsWith(".was")) {
+				// 获取was文件名称
+				wasFileName = listFiles[i].getName();
+				// 去掉最后一个-之后的字符 如000000-5f4de-0.was 保留000000-5f4de
+				substring = wasFileName.substring(0, wasFileName.lastIndexOf("-"));
+				// 提取id
+				id = substring.substring(substring.indexOf("-") + 1);
+				// 创建bmp文件名称
+				bmpName = path.substring(0, path.lastIndexOf(".") + 1) + fileType;
+				// 存入map
+				wasMap.put(id, bmpName);
+			}
+		}
+		return wasMap;
+	}
+
+	/**
+	 * 根据id重新命名
+	 * 
+	 * @param dir
+	 */
+	public static void remBmpName(File dir) {
+		File[] fs = dir.listFiles();
+		Map<String, String> idMap = getIdMap(dir, "bmp");
+		String id = "";
+		for (int i = 0; i < fs.length; i++) {
+			System.out.println(Thread.currentThread().getName() + ":" + i + i + "/" + fs.length);
+			// 如果当前路径是目录，进入目录继续查找
+			if (fs[i].isDirectory()) {
+				// 启动线程处理
+				File file = fs[i];
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						remBmpName(file);
+					}
+				}, fs[i].getName()).start();
+			} else {
+				// 当前文件是bmp文件时
+				if (fs[i].getName().endsWith(".bmp")) {
+					id = fs[i].getName().substring(0, fs[i].getName().lastIndexOf("."));
+					fs[i].renameTo(new File(idMap.get(id)));
+				}
+			}
+		}
+	}
+
+	public static Map<String, File> getPngMap(File dir) {
+		File[] listFiles = dir.listFiles();
+		Map<String, File> wasMap = new HashMap<String, File>();
+		String path = "";
+		String wasFileName = "";
+		String substring = "";
+		String id = "";
+		for (int i = 0; i < listFiles.length; i++) {
+			// 获取所有was文件id,并生产对应的bmp文件名称
+			path = listFiles[i].getAbsolutePath();
+			if (path.endsWith(".png")) {
+				// 获取was文件名称
+				wasFileName = listFiles[i].getName();
+
+				substring = wasFileName.substring(wasFileName.indexOf("-") + 1);
+
+				// 提取id
+				id = substring.substring(0, substring.indexOf(".") - 4);
+				// 存入map
+				wasMap.put(id, listFiles[i]);
+			}
+		}
+		return wasMap;
+	}
+
+	public static void showAllFiles2(File dir, Map<String, File> map) {
+		File[] fs = dir.listFiles();
+		File file;
+		String wasFileName;
+		String substring;
+		String id;
+		for (int i = 0; i < fs.length; i++) {
+			// 如果当前路径是目录，进入目录继续查找
+			if (fs[i].isDirectory()) {
+				showAllFiles2(fs[i], map);
+			} else {
+				if (fs[i].getName().endsWith(".was")) {
+					String path = fs[i].getAbsolutePath();
+					id = fs[i].getName().substring(0, fs[i].getName().indexOf("."));
+					System.out.println(path + "|" + id);
+					if (fs[i].getName().indexOf("-") != -1) {
+						// 获取was文件名称
+						wasFileName = fs[i].getName();
+						// 去掉最后一个-之后的字符 如000000-5f4de-0.was 保留000000-5f4de
+						substring = wasFileName.substring(0, wasFileName.lastIndexOf("-"));
+						// 提取id
+						id = substring.substring(substring.indexOf("-") + 1);
+					}
+					// 有id时
+					if (map.containsKey(id)) {
+						file = map.get(id);
+						file.renameTo(new File(path.substring(0, path.length() - 3) + "png"));
+						file.delete();
+					}
+				}
+			}
+		}
+	}
+
+	public static void main(String[] args) throws Exception {
+		 File dir = new File("F:\\games\\新建文件夹");
+		 //归档bmp
+//		 removeBmpFile(dir);
+		 //改名
+//		 remBmpName(dir);
+
+		
+		
+		//旧版png转新版
+//		File file = new File("D:\\新建文件夹\\png");
+//		Map<String, File> pngMap = getPngMap(file);
+//		showAllFiles2(new File("F:\\games\\新建文件夹"), pngMap);
 	}
 }

@@ -133,9 +133,10 @@ public class Action {
 	/**
 	 * ×ó¼üµã»÷
 	 */
-	public static void leftClick(Robot r){
-          r.mousePress(InputEvent.BUTTON1_MASK);  
-          r.delay(300);  
+	public static void leftClick(Robot robot){          
+          robot.mousePress(InputEvent.BUTTON1_MASK);  
+          robot.delay(300);  
+          robot.mouseRelease(InputEvent.BUTTON1_MASK);  
 	}
 
 }

@@ -11,6 +11,7 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 
 import org.apache.log4j.Logger;
@@ -127,6 +128,14 @@ public class Action {
 
 		r.delay(100);
 
+	}
+	
+	/**
+	 * ×ó¼üµã»÷
+	 */
+	public static void leftClick(Robot r){
+          r.mousePress(InputEvent.BUTTON1_MASK);  
+          r.delay(300);  
 	}
 
 }

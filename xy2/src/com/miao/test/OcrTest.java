@@ -6,7 +6,6 @@ import java.io.File;
 import com.miao.xy2.utils.screen.Screen;
 
 import net.sourceforge.tess4j.ITesseract;
-import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.Tesseract1;
 import net.sourceforge.tess4j.TesseractException;
 

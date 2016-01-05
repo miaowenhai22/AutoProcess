@@ -4,8 +4,6 @@
 package com.miao.test;
 
 import java.awt.AWTException;
-import java.awt.MouseInfo;
-import java.awt.Point;
 import java.awt.Robot;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -13,11 +11,6 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
-
-import org.apache.log4j.Logger;
-
-import com.miao.developer.Action;
-import com.miao.xy2.utils.Log;
 
 /**
 * @Description: 

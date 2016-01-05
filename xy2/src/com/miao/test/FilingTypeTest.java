@@ -3,12 +3,10 @@ package com.miao.test;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-public class FileTest {
+public class FilingTypeTest {
 	private Map<String, File> map;
 	// 缓存文件头信息-文件头信息
 	public static final HashMap<String, String> mFileTypes = new HashMap<String, String>();

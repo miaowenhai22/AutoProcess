@@ -9,8 +9,6 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.w3c.dom.ls.LSInput;
-
 import com.miao.developer.Action;
 
 public class MvFileTest {
@@ -98,7 +96,7 @@ public class MvFileTest {
 //		int index;
 //		for (int i = 0; i < tag.length; i++) {
 //			// 当前文件不为目录且后为tag格式
-//			if (!tag[i].isDirectory() && FileTest.getFileExtension(tag[i]).equals("tga")) {
+//			if (!tag[i].isDirectory() && FilingTypeTest.getFileExtension(tag[i]).equals("tga")) {
 //				// 后4为不为0000的文件，全部删除
 //				index = tag[i].getName().lastIndexOf(".");
 //				if (!tag[i].getName().substring(index - 4, index).equals("0000")) {

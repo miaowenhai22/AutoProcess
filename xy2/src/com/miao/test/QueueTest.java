@@ -3,8 +3,6 @@
  */
 package com.miao.test;
 
-import java.util.Timer;
-
 import com.miao.developer.queue.Task;
 import com.miao.developer.queue.TaskQueue;
 

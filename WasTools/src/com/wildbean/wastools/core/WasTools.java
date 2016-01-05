@@ -1133,8 +1133,8 @@ public class WasTools extends JFrame {
 		}
 		this.layerListModel.removeAllElements();
 		if (this.curCanvas != null) {
-			frame.setTitle(
-					this.curCanvas.isDirty() ? "*" + this.curCanvas.getCanvasName() : this.curCanvas.getCanvasName());
+			frame.setTitle(this.curCanvas.isDirty() ? "*" + this.curCanvas.getCanvasName() : this.curCanvas
+					.getCanvasName());
 			setTitle("Was Tools beta 2.0 - " + frame.getTitle());
 
 			Vector<CanvasImage> images = this.curCanvas.getImages();
@@ -1162,8 +1162,13 @@ public class WasTools extends JFrame {
 		}
 
 		public void actionPerformed(ActionEvent e) {
-			WdfFile wdf;
+			List<WasFile> filelist;
 			String prexName;
+			WdfFile wdf;
+			File file;
+			WasImage wasImage;
+			CanvasPreferences canvasPF;
+			int index;
 			switch (e.getActionCommand()) {
 			case "close wdf":
 				wdf = WasTools.this.getSelectedWDF();
@@ -1178,7 +1183,7 @@ public class WasTools extends JFrame {
 				break;
 			case "export was":
 				if (WasTools.this.previewNode != null) {
-					File file = Utils.showSaveDialog(WasTools.this, "导出WAS文件", Utils.WAS_FILTER);
+					file = Utils.showSaveDialog(WasTools.this, "导出WAS文件", Utils.WAS_FILTER);
 					if (file != null) {
 						if (!file.getName().endsWith(".was")) {
 							file = new File(file.getAbsolutePath() + ".was");
@@ -1205,9 +1210,9 @@ public class WasTools extends JFrame {
 					return;
 				if (!(WasTools.this.curCanvas.curImage instanceof SpriteCanvasImage))
 					return;
-				WasImage wasImage = (WasImage) WasTools.this.curCanvas.curImage.getData();
+				wasImage = (WasImage) WasTools.this.curCanvas.curImage.getData();
 				int spriteIndex = WasTools.this.curCanvas.curImage.getSpriteIndex();
-				File file = Utils.showSaveDialog(WasTools.this, "导出精灵为PNG序列", Utils.PNG_FILTER);
+				file = Utils.showSaveDialog(WasTools.this, "导出精灵为PNG序列", Utils.PNG_FILTER);
 				if (file != null) {
 					prexName = file.getAbsolutePath();
 					int width = wasImage.width;
@@ -1235,47 +1240,44 @@ public class WasTools extends JFrame {
 				}
 				break;
 			case "distill was from wdf":
-				SeekByteArrayInputStream bis = null;
-				List<WasFile> filelist = (java.util.List) WasTools.this;
-				for (WasFile file : filelist) {
+				filelist = (java.util.List) WasTools.this;
+				for (WasFile f : filelist) {
 					try {
-						bis = new SeekByteArrayInputStream(file.parent.getFileData(file));
-						WasTools.this.openWasFile(bis, String.valueOf(file), true);
-						WasTools.this.setHits("已提取WAS到新画布: " + file);
+						SeekByteArrayInputStream bis = new SeekByteArrayInputStream(f.parent.getFileData(f));
+						WasTools.this.openWasFile(bis, String.valueOf(f), true);
+						WasTools.this.setHits("已提取WAS到新画布: " + f);
 					} catch (Exception ex) {
-						String hits = "解释失败: " + file + " 不是WAS格式?";
+						String hits = "解释失败: " + f + " 不是WAS格式?";
 						WasTools.this.setHits(hits, WasTools.HitsType.ERROR);
 						System.err.println(hits);
 					}
 				}
 				break;
 			case "distill was & add to current canvas":
-				SeekByteArrayInputStream bis = null;
-				java.util.List<WasFile> filelist = (java.util.List) WasTools.this;
-				for (WasFile file : filelist)
+				filelist = (java.util.List) WasTools.this;
+				for (WasFile f : filelist)
 					try {
-						bis = new SeekByteArrayInputStream(file.parent.getFileData(file));
-						WasTools.this.openWasFile(bis, String.valueOf(file), false);
-						WasTools.this.setHits("已提取WAS到当前画布: " + file);
+						SeekByteArrayInputStream bis = new SeekByteArrayInputStream(f.parent.getFileData(f));
+						WasTools.this.openWasFile(bis, String.valueOf(f), false);
+						WasTools.this.setHits("已提取WAS到当前画布: " + f);
 					} catch (Exception ex) {
-						String hits = "解释失败: " + file + " 不是WAS格式?";
+						String hits = "解释失败: " + f + " 不是WAS格式?";
 						WasTools.this.setHits(hits, WasTools.HitsType.ERROR);
 						System.err.println(hits);
 					}
 				break;
 			case "preview was":
-				SeekByteArrayInputStream bis = null;
 				clearPreviewCanvas();
-				java.util.List filelist = (java.util.List) WasTools.this;
+				filelist = (java.util.List) WasTools.this;
 				if (filelist == null || filelist.size() == 0)
 					return;
-				WasFile file = (WasFile) filelist.get(filelist.size() - 1);
+				WasFile wasFile = (WasFile) filelist.get(filelist.size() - 1);
 				try {
-					bis = new SeekByteArrayInputStream(file.parent.getFileData(file));
-					previewWAS(bis, file);
-					setHits((new StringBuilder("预览WAS: ")).append(file).toString());
+					SeekByteArrayInputStream bis = new SeekByteArrayInputStream(wasFile.parent.getFileData(wasFile));
+					previewWAS(bis, wasFile);
+					setHits((new StringBuilder("预览WAS: ")).append(wasFile).toString());
 				} catch (Exception ex) {
-					String hits = (new StringBuilder("解释失败: ")).append(file).append(" 不是WAS格式?").toString();
+					String hits = (new StringBuilder("解释失败: ")).append(wasFile).append(" 不是WAS格式?").toString();
 					setHits(hits, HitsType.ERROR);
 					System.err.println(hits);
 				}
@@ -1288,28 +1290,27 @@ public class WasTools extends JFrame {
 				break;
 			case "open files":
 				File[] selectedFiles = Utils.showOpenDialog(WasTools.this, "打开文件", Utils.SUPPORT_FILTER);
-				for (File file : selectedFiles) {
+				for (File f : selectedFiles) {
 					try {
-						switch (Utils.getFileType(file)) {
+						switch (Utils.getFileType(f)) {
 						case 1:
-							WasTools.this.openWasFile(new FileInputStream(file), file.getName(),
-									!Utils.isAddToCurrent());
+							WasTools.this.openWasFile(new FileInputStream(f), f.getName(), !Utils.isAddToCurrent());
 							break;
 						case 2:
-							WasTools.this.openWdfFile(file);
+							WasTools.this.openWdfFile(f);
 							break;
 						case 3:
 						case 4:
 						case 5:
-							WasTools.this.openImage(file, !Utils.isAddToCurrent());
+							WasTools.this.openImage(f, !Utils.isAddToCurrent());
 							break;
 						case 100:
-							WasTools.this.newCanvasFrame(Canvas.loadFromFile(file));
+							WasTools.this.newCanvasFrame(Canvas.loadFromFile(f));
 						}
 
-						WasTools.this.setHits("已打开: " + file);
+						WasTools.this.setHits("已打开: " + f);
 					} catch (Exception ex) {
-						String hits = "不能打开文件 " + file.getName() + ":" + ex.getMessage();
+						String hits = "不能打开文件 " + f.getName() + ":" + ex.getMessage();
 						System.err.println(hits);
 						WasTools.this.setHits(hits, WasTools.HitsType.ERROR);
 					}
@@ -1323,15 +1324,15 @@ public class WasTools extends JFrame {
 				}
 				break;
 			case "new canvas":
-				CanvasPreferences dlg = new CanvasPreferences(WasTools.this);
-				dlg.showDialog(null);
-				Canvas canvas = dlg.getCanvas();
+				canvasPF = new CanvasPreferences(WasTools.this);
+				canvasPF.showDialog(null);
+				Canvas canvas = canvasPF.getCanvas();
 				if (canvas != null)
 					WasTools.this.newCanvasFrame(canvas);
 				break;
 			case "load wdf settings":
 				File[] files = Utils.showOpenDialog(WasTools.this, "打开WDF的注释文件", Utils.iniFilter);
-				WdfFile wdf = WasTools.this.getSelectedWDF();
+				wdf = WasTools.this.getSelectedWDF();
 				if ((files != null) && (wdf != null)) {
 					for (File iniFile : files) {
 						try {
@@ -1346,7 +1347,7 @@ public class WasTools extends JFrame {
 				WasTools.this.filelistTree.updateUI();
 				break;
 			case "save wdf settings":
-				WdfFile wdf = WasTools.this.getSelectedWDF();
+				wdf = WasTools.this.getSelectedWDF();
 				File iniFile = Utils.showSaveDialog(WasTools.this, "保存" + wdf.getName() + "的注释文件", Utils.iniFilter);
 				if (!iniFile.getName().endsWith(".ini")) {
 					iniFile = new File(iniFile.getAbsolutePath() + ".ini");
@@ -1355,14 +1356,14 @@ public class WasTools extends JFrame {
 					wdf.saveIniFile(iniFile);
 				break;
 			case "clear wdf settings":
-				WdfFile wdf = WasTools.this.getSelectedWDF();
+				wdf = WasTools.this.getSelectedWDF();
 				if (wdf != null) {
 					wdf.clearAllMark();
 					WasTools.this.filelistTree.updateUI();
 				}
 				break;
 			case "Delete seleted CanvasImage":
-				int index = layerList.getSelectedIndex();
+				index = layerList.getSelectedIndex();
 				Object pictures[] = layerList.getSelectedValues();
 				Object aobj[] = pictures;
 				int j1 = 0;
@@ -1384,16 +1385,16 @@ public class WasTools extends JFrame {
 				WasTools.this.updateLayerPanel();
 				break;
 			case "canvas preferences":
-				CanvasPreferences dlg = new CanvasPreferences(WasTools.this);
-				dlg.showDialog(WasTools.this.curCanvas);
+				canvasPF = new CanvasPreferences(WasTools.this);
+				canvasPF.showDialog(WasTools.this.curCanvas);
 				break;
 			case "preview canvas preferences":
-				CanvasPreferences dlg = new CanvasPreferences(WasTools.this);
-				dlg.showDialog(WasTools.this.previewCanvas);
+				canvasPF = new CanvasPreferences(WasTools.this);
+				canvasPF.showDialog(WasTools.this.previewCanvas);
 				break;
 			case "gif export preferences":
-				GifExportPreferences dlg = new GifExportPreferences(WasTools.this, WasTools.this.curCanvas);
-				dlg.setVisible(true);
+				GifExportPreferences dlg1 = new GifExportPreferences(WasTools.this, WasTools.this.curCanvas);
+				dlg1.setVisible(true);
 				break;
 			case "help message":
 				try {
@@ -1419,9 +1420,11 @@ public class WasTools extends JFrame {
 						e1.printStackTrace();
 					}
 				}
-				JOptionPane.showMessageDialog(WasTools.this,
-						"梦幻制图工具系列之\nWas Tools beta 2.0\n\nkylixs(落魄逍遥)\n野豆工作室@2007-2\n\n梦幻制图工具QQ群:9106334\n主页:kylixs.blog.sohu.com\n\n",
-						"关于", -1, WasTools.this.aboutIcon);
+				JOptionPane
+						.showMessageDialog(
+								WasTools.this,
+								"梦幻制图工具系列之\nWas Tools beta 2.0\n\nkylixs(落魄逍遥)\n野豆工作室@2007-2\n\n梦幻制图工具QQ群:9106334\n主页:kylixs.blog.sohu.com\n\n",
+								"关于", -1, WasTools.this.aboutIcon);
 				break;
 			case "align to sprite center":
 				WasTools.this.curCanvas.alignImages(0);
@@ -1451,23 +1454,23 @@ public class WasTools extends JFrame {
 				WasTools.this.curCanvas.setShowBoundary(WasTools.this.btnShowBoundary.isSelected());
 				break;
 			case "sort by id":
-				WdfFile wdf = WasTools.this.getSelectedWDF();
+				wdf = WasTools.this.getSelectedWDF();
 				wdf.sort(0);
-				int index = WasTools.this.removeWdfTree(wdf);
+				index = WasTools.this.removeWdfTree(wdf);
 				WasTools.this.createWdfTree(index, wdf, true);
 				WasTools.this.filelistTree.updateUI();
 				break;
 			case "sort by name":
-				WdfFile wdf = WasTools.this.getSelectedWDF();
+				wdf = WasTools.this.getSelectedWDF();
 				wdf.sort(1);
-				int index = WasTools.this.removeWdfTree(wdf);
+				index = WasTools.this.removeWdfTree(wdf);
 				WasTools.this.createWdfTree(index, wdf, true);
 				WasTools.this.filelistTree.updateUI();
 				break;
 			case "sort by size":
-				WdfFile wdf = WasTools.this.getSelectedWDF();
+				wdf = WasTools.this.getSelectedWDF();
 				wdf.sort(2);
-				int index = WasTools.this.removeWdfTree(wdf);
+				index = WasTools.this.removeWdfTree(wdf);
 				WasTools.this.createWdfTree(index, wdf, true);
 				WasTools.this.filelistTree.updateUI();
 				break;
@@ -1504,29 +1507,30 @@ public class WasTools extends JFrame {
 				updateLayerPanel();
 				break;
 			case "visible of all non-linked layers":
-				CanvasImage base = curCanvas.curImage;
-				Vector images = curCanvas.getImages();
-				boolean visible = false;
-				for (Iterator iterator7 = images.iterator(); iterator7.hasNext();) {
+				CanvasImage base1 = curCanvas.curImage;
+				Vector images1 = curCanvas.getImages();
+				visible = false;
+				for (Iterator iterator7 = images1.iterator(); iterator7.hasNext();) {
 					CanvasImage image = (CanvasImage) iterator7.next();
-					if (image.getLinkedBase() != base && image.isVisible() == visible) {
+					if (image.getLinkedBase() != base1 && image.isVisible() == visible) {
 						visible = true;
 						break;
 					}
 				}
 
-				for (Iterator iterator8 = images.iterator(); iterator8.hasNext();) {
+				for (Iterator iterator8 = images1.iterator(); iterator8.hasNext();) {
 					CanvasImage image = (CanvasImage) iterator8.next();
-					if (image.getLinkedBase() != base && image != base)
+					if (image.getLinkedBase() != base1 && image != base1)
 						image.setVisible(visible);
 				}
 
 				updateLayerPanel();
 				break;
 			case "visible of other layers":
-				Vector images = curCanvas.getImages();
-				boolean visible = false;
-				for (Iterator iterator3 = images.iterator(); iterator3.hasNext();) {
+				Vector images11 = curCanvas.getImages();
+				visible = false;
+				CanvasImage image;
+				for (Iterator iterator3 = images11.iterator(); iterator3.hasNext();) {
 					image = (CanvasImage) iterator3.next();
 					if (image.isVisible() == visible) {
 						visible = true;
@@ -1534,7 +1538,7 @@ public class WasTools extends JFrame {
 					}
 				}
 
-				for (Iterator iterator4 = images.iterator(); iterator4.hasNext(); image.setVisible(visible))
+				for (Iterator iterator4 = images11.iterator(); iterator4.hasNext(); image.setVisible(visible))
 					image = (CanvasImage) iterator4.next();
 
 				updateLayerPanel();
@@ -1563,7 +1567,7 @@ public class WasTools extends JFrame {
 				break;
 			case "save as":
 				if (WasTools.this.curCanvas != null) {
-					File file = Utils.showSaveDialog(WasTools.this,
+					file = Utils.showSaveDialog(WasTools.this,
 							"保存画布 " + WasTools.this.curCanvas.getCanvasName() + " 为", Utils.WTC_FILTER);
 					if (file != null) {
 						if (!file.getName().endsWith(".wtc")) {
@@ -1583,8 +1587,8 @@ public class WasTools extends JFrame {
 				break;
 			case "layer settings":
 				if ((WasTools.this.curCanvas != null) && (WasTools.this.curCanvas.curImage != null)) {
-					LayerPreferenceDlg dlg = new LayerPreferenceDlg(WasTools.this, WasTools.this.curCanvas.curImage);
-					dlg.setVisible(true);
+					LayerPreferenceDlg dlg11 = new LayerPreferenceDlg(WasTools.this, WasTools.this.curCanvas.curImage);
+					dlg11.setVisible(true);
 				}
 
 				break;
@@ -1629,8 +1633,8 @@ public class WasTools extends JFrame {
 			CanvasInternalFrame frame = (CanvasInternalFrame) e.getInternalFrame();
 			Canvas canvas = frame.getCanvas();
 			if ((canvas != null) && (canvas.isDirty())) {
-				int returnVal = JOptionPane.showConfirmDialog(WasTools.this.getParent(),
-						"画布 " + canvas.getCanvasName() + " 修改后还没保存，\n想要保存吗?", "提示", 1);
+				int returnVal = JOptionPane.showConfirmDialog(WasTools.this.getParent(), "画布 " + canvas.getCanvasName()
+						+ " 修改后还没保存，\n想要保存吗?", "提示", 1);
 				if (returnVal == 0)
 					WasTools.this.saveCanvas(canvas);
 				else if (returnVal == 2) {
@@ -1667,8 +1671,8 @@ public class WasTools extends JFrame {
 		public void keyReleased(KeyEvent e) {
 			Object source = e.getSource();
 			if ((source == WasTools.this.filelistTree) && (e.getKeyCode() == 10)) {
-				WasTools.this.eventHandler.actionPerformed(
-						new ActionEvent(WasTools.this.filelistTree, 1001, "distill was & add to current canvas"));
+				WasTools.this.eventHandler.actionPerformed(new ActionEvent(WasTools.this.filelistTree, 1001,
+						"distill was & add to current canvas"));
 				WasTools.this.filelistTree.requestFocus();
 			}
 		}
@@ -1680,8 +1684,8 @@ public class WasTools extends JFrame {
 			Object source = e.getSource();
 			if (source == WasTools.this.filelistTree) {
 				if ((e.getClickCount() == 2) && (e.getButton() == 1)) {
-					WasTools.this.eventHandler.actionPerformed(
-							new ActionEvent(WasTools.this.filelistTree, 1001, "distill was & add to current canvas"));
+					WasTools.this.eventHandler.actionPerformed(new ActionEvent(WasTools.this.filelistTree, 1001,
+							"distill was & add to current canvas"));
 				}
 			} else if (source == WasTools.this.desktop) {
 				if ((e.getClickCount() != 2) || (e.getButton() != 1))

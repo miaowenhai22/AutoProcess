@@ -1,27 +1,9 @@
 package com.wildbean.wastools.core;
 
-import com.jmhxy.animation.WasFrame;
-import com.jmhxy.animation.WasImage;
-import com.jmhxy.core.SpriteFactory;
-import com.jmhxy.encoder.WasDecoder;
-import com.jmhxy.encoder.WasFile;
-import com.jmhxy.encoder.WdfFile;
-import com.jmhxy.util.BrowserLauncher;
-import com.jmhxy.util.SeekByteArrayInputStream;
-import com.jmhxy.util.Utils;
-import com.wildbean.wastools.comp.EditableList;
-import com.wildbean.wastools.comp.FilterTreeModel;
-import com.wildbean.wastools.comp.LayerListCellEditor;
-import com.wildbean.wastools.comp.LayerListCellRenderer;
-import com.wildbean.wastools.comp.StringFilter;
-import com.wildbean.wastools.comp.TreeFilter;
-import com.wildbean.wastools.comp.WasIcon;
-import com.wildbean.wastools.encoder.AnimatedGifEncoder;
 import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics2D;
@@ -49,11 +31,12 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.DropMode;
@@ -66,7 +49,6 @@ import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JList.DropLocation;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -91,12 +73,28 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.MouseInputListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.text.Document;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
+
+import com.jmhxy.animation.WasFrame;
+import com.jmhxy.animation.WasImage;
+import com.jmhxy.core.SpriteFactory;
+import com.jmhxy.encoder.WasDecoder;
+import com.jmhxy.encoder.WasFile;
+import com.jmhxy.encoder.WdfFile;
+import com.jmhxy.util.BrowserLauncher;
+import com.jmhxy.util.SeekByteArrayInputStream;
+import com.jmhxy.util.Utils;
+import com.wildbean.wastools.comp.EditableList;
+import com.wildbean.wastools.comp.FilterTreeModel;
+import com.wildbean.wastools.comp.LayerListCellEditor;
+import com.wildbean.wastools.comp.LayerListCellRenderer;
+import com.wildbean.wastools.comp.StringFilter;
+import com.wildbean.wastools.comp.TreeFilter;
+import com.wildbean.wastools.comp.WasIcon;
+import com.wildbean.wastools.encoder.AnimatedGifEncoder;
 
 public class WasTools extends JFrame {
 	public static final String CMD_LAYER_CUT = "cut layer";
@@ -197,16 +195,154 @@ public class WasTools extends JFrame {
 		inst.setVisible(true);
 		if ((args != null) && (args.length > 0))
 			try {
-				if ((args[0].endsWith(".wdf")) || (args[0].endsWith(".WDF"))) {
+				File file = new File(args[0]);
+				if (file.isDirectory()) {
+					// 最小化运行
+					inst.setExtendedState(ICONIFIED);
+					// 传入的参数是目录时，自动转化目录下所有was文件为gif
+					wasToGif(inst, file);
+				} else if (file.getAbsolutePath().endsWith(".wdf") || file.getAbsolutePath().endsWith(".WDF")) {
 					inst.openWdfFile(new File(args[0]));
 					inst.filelistTree.updateUI();
-				} else if ((args[0].endsWith(".was")) || (args[0].endsWith(".WAS"))) {
+				} else if (file.getAbsolutePath().endsWith(".was") || file.getAbsolutePath().endsWith(".WAS")) {
 					inst.openWasFile(new FileInputStream(args[0]), args[0], true);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
 				JOptionPane.showMessageDialog(inst, "打开文件失败:" + e.getMessage(), "Error", 0);
 			}
+	}
+
+	/**
+	 * 转换目录下的所有was文为gif
+	 * @param tools WasTools工具
+	 * @param dir 要转换的目录
+	 */
+	public static void wasToGif(WasTools tools, File dir) throws IOException {
+		List<File> list = new ArrayList<>();
+		// 统计目录下所有was文件
+		countWasFile(tools, dir, list);
+		// 转换文件
+		if (list.size() > 0) {
+			String wasFilePath;
+			File gifFile;
+			for (int i = 0; i < list.size(); i++) {
+				// 判断gif文件是否存
+				wasFilePath = list.get(i).getAbsolutePath();
+				gifFile = new File(wasFilePath.substring(0, wasFilePath.lastIndexOf(".")) + ".gif");
+				if (!gifFile.exists()) {
+					System.out.println(Thread.currentThread().getName() + ":(" + (i + 1) + "/" + list.size() + ")当前文件-"
+							+ list.get(i).getAbsolutePath());
+					// 打开was文件
+					tools.openWasFile(list.get(i));
+					// 转换was文件到gif
+					tools.exportCanvasAsGIF(gifFile);
+					// 关闭was文件
+					tools.closeCurrentWasFile();
+				} else {
+					System.out.println(Thread.currentThread().getName() + ":(" + (i + 1) + "/" + list.size() + ")当前文件-"
+							+ list.get(i).getAbsolutePath() + "文件已存在");
+				}
+			}
+			// 关闭转换器
+			tools.dispose();
+		}
+	}
+
+	/**
+	 * 递归当前统计目录下的所有was文件
+	 * @param tools WasTools工具
+	 * @param dir 要查询的目录
+	 * @param wasFiles 存放结果的list文件
+	 */
+	public static void countWasFile(WasTools tools, File dir, List<File> wasFiles) {
+		File[] fs = dir.listFiles();
+		for (int i = 0; i < fs.length; i++) {
+			// 如果当前路径是目录，进入目录继续查找
+			if (fs[i].isDirectory()) {
+				countWasFile(tools, fs[i], wasFiles);
+			} else {
+				// 当前文件是was文件时
+				if (fs[i].getAbsolutePath().endsWith("was") || fs[i].getAbsolutePath().endsWith("WAS")) {
+					wasFiles.add(fs[i]);
+				}
+			}
+		}
+	}
+
+	/**
+	 * 打开was文件
+	 * @param is
+	 * @param name
+	 * @param newWindow
+	 * @throws IOException
+	 */
+	private void openWasFile(File file) throws IOException {
+		if (file != null) {
+			CanvasImage canvasImage = new SpriteCanvasImage(WasDecoder.loadImage(new FileInputStream(file)),
+					file.getName());
+			if (this.curCanvas == null)
+				newCanvasFrame(new Canvas(canvasImage));
+			else {
+				this.curCanvas.addImage(canvasImage);
+			}
+			updateLayerPanel();
+		}
+	}
+
+	/**
+	 * 关闭当前打开文件
+	 */
+	private void closeCurrentWasFile() {
+		this.curCanvas = null;
+		JInternalFrame frame = this.desktop.getSelectedFrame();
+		if (frame != null)
+			frame.doDefaultCloseAction();
+	}
+
+	/**
+	 *
+	 * 自动转换为Gif文件
+	 * @param canvas
+	 * @param file
+	 */
+	private void exportCanvasAsGIF(File file) {
+		FileOutputStream imgOut = null;
+		try {
+			if (!file.getName().endsWith(".gif")) {
+				file = new File(file.getAbsolutePath() + ".gif");
+			}
+			int width = this.curCanvas.getCanvasWidth();
+			int height = this.curCanvas.getCanvasHeight();
+			AnimatedGifEncoder gifEncoder = new AnimatedGifEncoder();
+			int gifDelay = 100;
+			gifEncoder.setDelay(gifDelay);
+			gifEncoder.setRepeat(0);
+			gifEncoder.setSize(width, height);
+			gifEncoder.setDispose(0);
+			gifEncoder.setTransparent(null);
+			gifEncoder.setQuality(15);
+			imgOut = new FileOutputStream(file);
+			gifEncoder.start(imgOut);
+			int count = this.curCanvas.getTotalDelay();
+			this.curCanvas.firstFrame();
+			for (int i = 0; i < count; i++) {
+				this.curCanvas.paintCanvas();
+				gifEncoder.addFrame(this.curCanvas.bufImg);
+				this.curCanvas.nextFrame();
+			}
+			gifEncoder.finish();
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		} finally {
+			try {
+				if (imgOut != null)
+					imgOut.close();
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+			this.curCanvas.play();
+		}
 	}
 
 	private void exportCanvasAsGIF(Canvas canvas) {
@@ -1133,8 +1269,8 @@ public class WasTools extends JFrame {
 		}
 		this.layerListModel.removeAllElements();
 		if (this.curCanvas != null) {
-			frame.setTitle(this.curCanvas.isDirty() ? "*" + this.curCanvas.getCanvasName() : this.curCanvas
-					.getCanvasName());
+			frame.setTitle(
+					this.curCanvas.isDirty() ? "*" + this.curCanvas.getCanvasName() : this.curCanvas.getCanvasName());
 			setTitle("Was Tools beta 2.0 - " + frame.getTitle());
 
 			Vector<CanvasImage> images = this.curCanvas.getImages();
@@ -1420,11 +1556,9 @@ public class WasTools extends JFrame {
 						e1.printStackTrace();
 					}
 				}
-				JOptionPane
-						.showMessageDialog(
-								WasTools.this,
-								"梦幻制图工具系列之\nWas Tools beta 2.0\n\nkylixs(落魄逍遥)\n野豆工作室@2007-2\n\n梦幻制图工具QQ群:9106334\n主页:kylixs.blog.sohu.com\n\n",
-								"关于", -1, WasTools.this.aboutIcon);
+				JOptionPane.showMessageDialog(WasTools.this,
+						"梦幻制图工具系列之\nWas Tools beta 2.0\n\nkylixs(落魄逍遥)\n野豆工作室@2007-2\n\n梦幻制图工具QQ群:9106334\n主页:kylixs.blog.sohu.com\n\n",
+						"关于", -1, WasTools.this.aboutIcon);
 				break;
 			case "align to sprite center":
 				WasTools.this.curCanvas.alignImages(0);
@@ -1567,8 +1701,8 @@ public class WasTools extends JFrame {
 				break;
 			case "save as":
 				if (WasTools.this.curCanvas != null) {
-					file = Utils.showSaveDialog(WasTools.this,
-							"保存画布 " + WasTools.this.curCanvas.getCanvasName() + " 为", Utils.WTC_FILTER);
+					file = Utils.showSaveDialog(WasTools.this, "保存画布 " + WasTools.this.curCanvas.getCanvasName() + " 为",
+							Utils.WTC_FILTER);
 					if (file != null) {
 						if (!file.getName().endsWith(".wtc")) {
 							file = new File(file.getAbsolutePath() + ".wtc");
@@ -1632,15 +1766,17 @@ public class WasTools extends JFrame {
 		public void internalFrameClosing(InternalFrameEvent e) {
 			CanvasInternalFrame frame = (CanvasInternalFrame) e.getInternalFrame();
 			Canvas canvas = frame.getCanvas();
-			if ((canvas != null) && (canvas.isDirty())) {
-				int returnVal = JOptionPane.showConfirmDialog(WasTools.this.getParent(), "画布 " + canvas.getCanvasName()
-						+ " 修改后还没保存，\n想要保存吗?", "提示", 1);
-				if (returnVal == 0)
-					WasTools.this.saveCanvas(canvas);
-				else if (returnVal == 2) {
-					return;
-				}
-			}
+			// TODO 关闭退出保存提示
+			// if ((canvas != null) && (canvas.isDirty())) {
+			// int returnVal =
+			// JOptionPane.showConfirmDialog(WasTools.this.getParent(),
+			// "画布 " + canvas.getCanvasName() + " 修改后还没保存，\n想要保存吗?", "提示", 1);
+			// if (returnVal == 0)
+			// WasTools.this.saveCanvas(canvas);
+			// else if (returnVal == 2) {
+			// return;
+			// }
+			// }
 			frame.dispose();
 		}
 
@@ -1671,8 +1807,8 @@ public class WasTools extends JFrame {
 		public void keyReleased(KeyEvent e) {
 			Object source = e.getSource();
 			if ((source == WasTools.this.filelistTree) && (e.getKeyCode() == 10)) {
-				WasTools.this.eventHandler.actionPerformed(new ActionEvent(WasTools.this.filelistTree, 1001,
-						"distill was & add to current canvas"));
+				WasTools.this.eventHandler.actionPerformed(
+						new ActionEvent(WasTools.this.filelistTree, 1001, "distill was & add to current canvas"));
 				WasTools.this.filelistTree.requestFocus();
 			}
 		}
@@ -1684,8 +1820,8 @@ public class WasTools extends JFrame {
 			Object source = e.getSource();
 			if (source == WasTools.this.filelistTree) {
 				if ((e.getClickCount() == 2) && (e.getButton() == 1)) {
-					WasTools.this.eventHandler.actionPerformed(new ActionEvent(WasTools.this.filelistTree, 1001,
-							"distill was & add to current canvas"));
+					WasTools.this.eventHandler.actionPerformed(
+							new ActionEvent(WasTools.this.filelistTree, 1001, "distill was & add to current canvas"));
 				}
 			} else if (source == WasTools.this.desktop) {
 				if ((e.getClickCount() != 2) || (e.getButton() != 1))

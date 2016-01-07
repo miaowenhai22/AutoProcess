@@ -18,11 +18,20 @@ import com.wildbean.wastools.core.WasTools;
 public class ConversionFile {
 	public static void main(String[] args) {
 		String path = "D:\\Desktop\\aa";
+		startOne(path);
+	}
+	
+	public static void startOne(String path){
+		long time = System.currentTimeMillis();
+		// 创建线程转换所有was文件
+		WasTools.main(new String[] { path });
+		System.out.println("转换完成用时" + ((System.currentTimeMillis() - time)));
+		System.exit(0);
+	}
+	
+	public static void startThreadRun(String path){
 		List<Thread> list = new ArrayList<>();
 		Thread toolThread;
-		if (args.length > 0 && args.length == 1) {
-			path = args[0];
-		}
 		long time = System.currentTimeMillis();
 		// 创建线程转换所有was文件
 		File[] files = new File(path).listFiles();
@@ -53,4 +62,5 @@ public class ConversionFile {
 		System.out.println("转换完成用时" + ((System.currentTimeMillis() - time)));
 		System.exit(0);
 	}
+	
 }

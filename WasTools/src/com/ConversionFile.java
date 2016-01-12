@@ -4,6 +4,7 @@
 package com;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,16 +17,17 @@ import com.wildbean.wastools.core.WasTools;
 *
 */
 public class ConversionFile {
-	public static void main(String[] args) {
-		String path = "D:\\Desktop\\aa";
+	public static void main(String[] args) throws IOException {
+		String path = "F:\\games\\新建文件夹";
 		startOne(path);
 	}
 	
-	public static void startOne(String path){
+	public static void startOne(String path)  {
 		long time = System.currentTimeMillis();
 		// 创建线程转换所有was文件
 		WasTools.main(new String[] { path });
-		System.out.println("转换完成用时" + ((System.currentTimeMillis() - time)));
+		System.out.println("转换完成用时" + (System.currentTimeMillis() - time));
+//		Runtime.getRuntime().exec("shutdown -s -t 600");
 		System.exit(0);
 	}
 	
@@ -88,5 +90,10 @@ public class ConversionFile {
        return html;  
          
    }  
+    
+    
+    public static void rejij(){
+    	
+    }
 	
 }

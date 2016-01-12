@@ -212,10 +212,10 @@ public class FilingTypeTest {
 				}, fs[i].getName()).start();
 			} else {
 				// 当前文件是bmp文件时
-				if (fs[i].getAbsolutePath().endsWith(".bmp")) {
+				if (fs[i].getAbsolutePath().endsWith(".tga")) {
 					path = dir.getAbsolutePath();
 					// 如果当前文件夹是was解包后的文件夹
-					if (path.endsWith("_was") && fs[i].getAbsolutePath().endsWith("0000.bmp")) {
+					if ( fs[i].getAbsolutePath().endsWith("00000.tga")) {
 						id = path.substring(path.lastIndexOf("\\") + 1, path.lastIndexOf("_"));
 						fs[i].renameTo(new File(path.substring(0, path.lastIndexOf("\\")) + "\\" + id + ".bmp"));
 					} else {
@@ -357,7 +357,7 @@ public class FilingTypeTest {
 	}
 
 	public static void main(String[] args) throws Exception {
-		 File dir = new File("F:\\games\\新建文件夹");
+		 File dir = new File("F:\\games\\新建文件夹\\shape_wdf");
 		 //归档bmp
 //		 removeBmpFile(dir);
 		 //改名

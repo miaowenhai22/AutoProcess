@@ -28,7 +28,7 @@ public class ExcelTest {
 		String id;
 
 		try {
-			
+
 			String fileName = "名单.xls"; // Excel文件所在路径
 			Workbook wb = Workbook.getWorkbook(new File(fileName)); // 从文件流中获取Excel工作区对象（WorkBook）
 			Sheet[] sheets = wb.getSheets();// 获取所有sheet
@@ -50,7 +50,9 @@ public class ExcelTest {
 			// System.out.println(data);
 
 			// 转数组
-			// [id="",name="",company=""],[],[],[],[]
+			// [id="",
+			// name="",
+			// company=""],[],[],[],[]
 			StringBuffer sb = new StringBuffer();
 			for (int i = 0; i < list.size(); i++) {
 				sb.append("[\n");
@@ -69,7 +71,6 @@ public class ExcelTest {
 			System.out.println(data);
 			System.out.println("总人数:" + count);
 
-			
 			// 输出到文本中
 			File file = new File("result.txt");
 			if (!file.exists()) {
@@ -82,7 +83,6 @@ public class ExcelTest {
 			bufferWritter.write(data);
 			bufferWritter.close();
 
-		
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (BiffException e) {

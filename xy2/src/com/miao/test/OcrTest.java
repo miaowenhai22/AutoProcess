@@ -11,7 +11,6 @@ public class OcrTest {
 		File imageFile = new File("D:/2.png");
 		ITesseract instance = new Tesseract();
 //		instance.setLanguage("chi_sim");
-		System.out.println("bug∑÷÷ß");
 
 		try {
 			String result = instance.doOCR(imageFile);

@@ -36,6 +36,8 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
@@ -78,6 +80,7 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import com.Log;
 import com.jmhxy.animation.WasFrame;
 import com.jmhxy.animation.WasImage;
 import com.jmhxy.core.SpriteFactory;
@@ -190,17 +193,18 @@ public class WasTools extends JFrame {
 	private JScrollPane layerListPanel;
 
 	public static void main(String[] args) {
+	
 		Utils.iniGlobalFont();
 		WasTools inst = new WasTools();
 		inst.setVisible(true);
-		if ((args != null) && (args.length > 0))
+		if ((args != null) && (args.length > 0)){
 			try {
 				File file = new File(args[0]);
 				if (file.isDirectory()) {
 					// 最小化运行
 					inst.setExtendedState(ICONIFIED);
 					// 传入的参数是目录时，自动转化目录下所有was文件为gif
-					wasToGif(inst, file);
+					wasToGif(inst, new File(args[0]));
 				} else if (file.getAbsolutePath().endsWith(".wdf") || file.getAbsolutePath().endsWith(".WDF")) {
 					inst.openWdfFile(new File(args[0]));
 					inst.filelistTree.updateUI();
@@ -210,15 +214,22 @@ public class WasTools extends JFrame {
 			} catch (Exception e) {
 				e.printStackTrace();
 				JOptionPane.showMessageDialog(inst, "打开文件失败:" + e.getMessage(), "Error", 0);
-			}
+			} 
+		}
 	}
 
 	/**
 	 * 转换目录下的所有was文为gif
-	 * @param tools WasTools工具
-	 * @param dir 要转换的目录
+	 * 
+	 * @param tools
+	 *            WasTools工具
+	 * @param dir
+	 *            要转换的目录
+	 * @throws IOException 
+	 * @throws FileNotFoundException 
+	 * @throws IllegalArgumentException 
 	 */
-	public static void wasToGif(WasTools tools, File dir) throws IOException {
+	public static void wasToGif(WasTools tools, File dir) throws IOException  {
 		List<File> list = new ArrayList<>();
 		// 统计目录下所有was文件
 		countWasFile(tools, dir, list);
@@ -227,22 +238,27 @@ public class WasTools extends JFrame {
 			String wasFilePath;
 			File gifFile;
 			for (int i = 0; i < list.size(); i++) {
-				// 判断gif文件是否存
-				wasFilePath = list.get(i).getAbsolutePath();
-				gifFile = new File(wasFilePath.substring(0, wasFilePath.lastIndexOf(".")) + ".gif");
-				if (!gifFile.exists()) {
-					System.out.println(Thread.currentThread().getName() + ":(" + (i + 1) + "/" + list.size() + ")当前文件-"
-							+ list.get(i).getAbsolutePath());
-					// 打开was文件
-					tools.openWasFile(list.get(i));
-					// 转换was文件到gif
-					tools.exportCanvasAsGIF(gifFile);
-					// 关闭was文件
-					tools.closeCurrentWasFile();
-				} else {
-					System.out.println(Thread.currentThread().getName() + ":(" + (i + 1) + "/" + list.size() + ")当前文件-"
-							+ list.get(i).getAbsolutePath() + "文件已存在");
-				}
+				try {
+					// 判断gif文件是否存
+					wasFilePath = list.get(i).getAbsolutePath();
+					gifFile = new File(wasFilePath.substring(0, wasFilePath.lastIndexOf(".")) + ".gif");
+					if (!gifFile.exists()) {
+						System.out.println(Thread.currentThread().getName() + ":(" + (i + 1) + "/" + list.size() + ")当前文件-"
+								+ list.get(i).getAbsolutePath());
+						// 打开was文件
+						tools.openWasFile(list.get(i));
+						// 转换was文件到gif
+						tools.exportCanvasAsGIF(gifFile);
+						// 关闭was文件
+						tools.closeCurrentWasFile();
+					} else {
+						System.out.println(Thread.currentThread().getName() + ":(" + (i + 1) + "/" + list.size() + ")当前文件-"
+								+ list.get(i).getAbsolutePath() + "文件已存在");
+					}
+				} catch (Exception e) {
+					Log.info("文件打开失败", list.get(i).getAbsolutePath());
+					Runtime.getRuntime().exec("C:\\Users\\mc\\Desktop\\GlowtoolsA-wdf\\wascompress.exe "+list.get(i).getAbsolutePath());
+				} 
 			}
 			// 关闭转换器
 			tools.dispose();
@@ -251,9 +267,13 @@ public class WasTools extends JFrame {
 
 	/**
 	 * 递归当前统计目录下的所有was文件
-	 * @param tools WasTools工具
-	 * @param dir 要查询的目录
-	 * @param wasFiles 存放结果的list文件
+	 * 
+	 * @param tools
+	 *            WasTools工具
+	 * @param dir
+	 *            要查询的目录
+	 * @param wasFiles
+	 *            存放结果的list文件
 	 */
 	public static void countWasFile(WasTools tools, File dir, List<File> wasFiles) {
 		File[] fs = dir.listFiles();
@@ -272,12 +292,15 @@ public class WasTools extends JFrame {
 
 	/**
 	 * 打开was文件
+	 * 
 	 * @param is
 	 * @param name
 	 * @param newWindow
+	 * @throws FileNotFoundException 
+	 * @throws IllegalArgumentException 
 	 * @throws IOException
 	 */
-	private void openWasFile(File file) throws IOException {
+	private void openWasFile(File file) throws IllegalArgumentException, FileNotFoundException, IOException   {
 		if (file != null) {
 			CanvasImage canvasImage = new SpriteCanvasImage(WasDecoder.loadImage(new FileInputStream(file)),
 					file.getName());
@@ -303,6 +326,7 @@ public class WasTools extends JFrame {
 	/**
 	 *
 	 * 自动转换为Gif文件
+	 * 
 	 * @param canvas
 	 * @param file
 	 */
@@ -1191,7 +1215,7 @@ public class WasTools extends JFrame {
 		newCanvasFrame(canvas, canvas.getCanvasName());
 	}
 
-	private void openWasFile(InputStream is, String name, boolean newWindow) throws IOException {
+	private void openWasFile(InputStream is, String name, boolean newWindow) throws IllegalArgumentException, IOException  {
 		if (is != null) {
 			CanvasImage canvasImage = new SpriteCanvasImage(WasDecoder.loadImage(is), name);
 			if ((newWindow) || (this.curCanvas == null))
@@ -1269,8 +1293,8 @@ public class WasTools extends JFrame {
 		}
 		this.layerListModel.removeAllElements();
 		if (this.curCanvas != null) {
-			frame.setTitle(
-					this.curCanvas.isDirty() ? "*" + this.curCanvas.getCanvasName() : this.curCanvas.getCanvasName());
+			frame.setTitle(this.curCanvas.isDirty() ? "*" + this.curCanvas.getCanvasName() : this.curCanvas
+					.getCanvasName());
 			setTitle("Was Tools beta 2.0 - " + frame.getTitle());
 
 			Vector<CanvasImage> images = this.curCanvas.getImages();
@@ -1556,9 +1580,11 @@ public class WasTools extends JFrame {
 						e1.printStackTrace();
 					}
 				}
-				JOptionPane.showMessageDialog(WasTools.this,
-						"梦幻制图工具系列之\nWas Tools beta 2.0\n\nkylixs(落魄逍遥)\n野豆工作室@2007-2\n\n梦幻制图工具QQ群:9106334\n主页:kylixs.blog.sohu.com\n\n",
-						"关于", -1, WasTools.this.aboutIcon);
+				JOptionPane
+						.showMessageDialog(
+								WasTools.this,
+								"梦幻制图工具系列之\nWas Tools beta 2.0\n\nkylixs(落魄逍遥)\n野豆工作室@2007-2\n\n梦幻制图工具QQ群:9106334\n主页:kylixs.blog.sohu.com\n\n",
+								"关于", -1, WasTools.this.aboutIcon);
 				break;
 			case "align to sprite center":
 				WasTools.this.curCanvas.alignImages(0);
@@ -1701,8 +1727,8 @@ public class WasTools extends JFrame {
 				break;
 			case "save as":
 				if (WasTools.this.curCanvas != null) {
-					file = Utils.showSaveDialog(WasTools.this, "保存画布 " + WasTools.this.curCanvas.getCanvasName() + " 为",
-							Utils.WTC_FILTER);
+					file = Utils.showSaveDialog(WasTools.this,
+							"保存画布 " + WasTools.this.curCanvas.getCanvasName() + " 为", Utils.WTC_FILTER);
 					if (file != null) {
 						if (!file.getName().endsWith(".wtc")) {
 							file = new File(file.getAbsolutePath() + ".wtc");
@@ -1807,8 +1833,8 @@ public class WasTools extends JFrame {
 		public void keyReleased(KeyEvent e) {
 			Object source = e.getSource();
 			if ((source == WasTools.this.filelistTree) && (e.getKeyCode() == 10)) {
-				WasTools.this.eventHandler.actionPerformed(
-						new ActionEvent(WasTools.this.filelistTree, 1001, "distill was & add to current canvas"));
+				WasTools.this.eventHandler.actionPerformed(new ActionEvent(WasTools.this.filelistTree, 1001,
+						"distill was & add to current canvas"));
 				WasTools.this.filelistTree.requestFocus();
 			}
 		}
@@ -1820,8 +1846,8 @@ public class WasTools extends JFrame {
 			Object source = e.getSource();
 			if (source == WasTools.this.filelistTree) {
 				if ((e.getClickCount() == 2) && (e.getButton() == 1)) {
-					WasTools.this.eventHandler.actionPerformed(
-							new ActionEvent(WasTools.this.filelistTree, 1001, "distill was & add to current canvas"));
+					WasTools.this.eventHandler.actionPerformed(new ActionEvent(WasTools.this.filelistTree, 1001,
+							"distill was & add to current canvas"));
 				}
 			} else if (source == WasTools.this.desktop) {
 				if ((e.getClickCount() != 2) || (e.getButton() != 1))

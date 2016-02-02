@@ -235,7 +235,7 @@ public class WasDecoder {
 		return pixels;
 	}
 
-	public static WasImage loadImage(InputStream is) throws IOException {
+	public static WasImage loadImage(InputStream is) throws IOException,IllegalArgumentException   {
 		int[] frameDelays = (int[]) null;
 		SeekByteArrayInputStream in;
 		if ((is instanceof SeekByteArrayInputStream)) {

@@ -51,7 +51,7 @@ public class ExcelTest {
 
 			// ×ªÊý×é
 			// [id="",
-			// name="",
+			// name="",`
 			// company=""],[],[],[],[]
 			StringBuffer sb = new StringBuffer();
 			for (int i = 0; i < list.size(); i++) {

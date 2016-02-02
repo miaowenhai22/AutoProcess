@@ -13,6 +13,7 @@ public class Staff {
 	private String name;
 	private String id;
 	private String company;
+	private String CmdId;
 	public String getName() {
 		return name;
 	}
@@ -37,6 +38,13 @@ public class Staff {
 		this.id = id;
 		this.company = company;
 	}
+	public String getCmdId() {
+		return CmdId;
+	}
+	public void setCmdId(String cmdId) {
+		CmdId = cmdId;
+	}
+	
 
 	
 	

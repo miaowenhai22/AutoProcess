@@ -7,6 +7,6 @@
 	<classpathentry kind="lib" path="libraries/jna.jar"/>
 	<classpathentry kind="lib" path="libraries/tess4j.jar" sourcepath="F:/BaiduDisk/myapp/tesseract/Tess4J-2.0-src.zip"/>
 	<classpathentry kind="lib" path="libraries/log4j-1.2.17.jar" sourcepath="C:/Users/Administrator/Desktop/log4j-1.2.17.zip"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/opencv3.1"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/opencv-3.1"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

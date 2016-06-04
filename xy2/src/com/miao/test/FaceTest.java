@@ -25,9 +25,10 @@ public class FaceTest {
 		//创建级联分类器
 		CascadeClassifier faceDetector = new CascadeClassifier();
 		//加载分类器
-		 faceDetector.load("D:/opencv/3.1/sources/data/haarcascades/haarcascade_frontalface_alt.xml");
+//		 faceDetector.load("D:/opencv/3.1/sources/data/haarcascades/haarcascade_frontalface_alt.xml");
+		 faceDetector.load("res/cascade.xml");
 		//加载图片
-		Mat image = Imgcodecs.imread("D:/shekhar.jpg");
+		Mat image = Imgcodecs.imread("D:/shekhar.png");
 		 
 		//矩形
 		MatOfRect faceDetections = new MatOfRect();
